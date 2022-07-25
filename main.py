@@ -6,6 +6,8 @@ from texts import text_test
 import random
 
 score = 0
+game_length = 60  # set length of game to 60 second
+
 
 class App:
     def __init__(self, root):
@@ -34,6 +36,16 @@ class App:
         start_button["font"] = ft
         start_button.place(x=380, y=330, width=139, height=37)
 
+        leaderdoard_button = tk.Button(root,
+                                       fg="#ffffff",
+                                       justify="center",
+                                       text="TOP 3 Leaderboard",
+                                       bg="#00babd",
+                                       command=self.show_leaderboard)
+        ft = tkFont.Font(family='Times', size=10)
+        leaderdoard_button["font"] = ft
+        leaderdoard_button.place(x=380, y=630, width=139, height=37)
+
         label_title = tk.Label(root, justify="center", text="Typing Speed Test")
         ft = tkFont.Font(family='Times', size=14)
         label_title["font"] = ft
@@ -49,6 +61,12 @@ class App:
         label_nickname["font"] = ft
         label_nickname.place(x=340, y=290, width=153, height=30)
 
+    def show_leaderboard(self):
+        leaderboard = rank_board.sort_values(by=['score'], ascending=False, ignore_index=True)
+        leaderboard.index = leaderboard.index + 1
+        messagebox.showinfo(title="TOP 3 Best of the best",
+                            message=f"{leaderboard[0:3]}")
+
     def start_command(self):
         global text_list, user_nickname
         if len(self.user_entry.get()) < 1:
@@ -59,7 +77,7 @@ class App:
         self.text_mess.insert(tk.END, random.choice(text_test))
         text = self.text_mess.get("1.0", tk.END)
         text_list = text.split()
-        root.after(1000 * 10, self.count_score)
+        root.after(1000 * game_length, self.count_score)
 
     def count_score(self):
         global score
@@ -84,7 +102,7 @@ class App:
 
         rank_board.loc[len(rank_board)] = [user_nickname, int(score)]
         sort_rank_board = rank_board.sort_values(by=['score'], ascending=False, ignore_index=True)
-        place = sort_rank_board[sort_rank_board.user == user_nickname][sort_rank_board.score == score].index[0]+1
+        place = sort_rank_board[sort_rank_board.user == user_nickname][sort_rank_board.score == score].index[0] + 1
         messagebox.showinfo(title=f"{user_nickname} result",
                             message=f"Your score is {score}. Your place is {place} in leaderboard")
 
@@ -92,8 +110,7 @@ class App:
 
 
 if __name__ == "__main__":
-
-    rank_board = pd.read_csv("rankboar.csv", usecols =["user","score"])
+    rank_board = pd.read_csv("rankboar.csv", usecols=["user", "score"])
 
     root = tk.Tk()
     app = App(root)
